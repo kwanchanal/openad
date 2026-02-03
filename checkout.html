@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>wemint | Request Money</title>
+    <link rel="icon" href="../favicon/main.svg" />
+    <link rel="stylesheet" href="checkout.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="checkout-page">
+    <div class="page-container">
+      <!-- Left Panel: Form -->
+      <section class="form-panel">
+        <header class="form-header">
+          <div class="brand">
+            <div class="brand-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="#111827"/>
+                <text x="20" y="25" text-anchor="middle" fill="white" font-size="14" font-weight="700">wm</text>
+              </svg>
+            </div>
+            <div class="brand-info">
+              <h1 class="brand-title">Payment Link Generator</h1>
+              <p class="brand-subtitle">By wemint</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="form-content">
+          <!-- Payment Method Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div>
+                <h2 class="section-title">Payment method</h2>
+                <p class="section-subtitle">How would you like to get paid?</p>
+              </div>
+              <a href="#" class="link-action">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Add manually
+              </a>
+            </div>
+
+            <div class="receive-method">
+              <div class="method-options">
+                <label class="method-option">
+                  <input type="radio" name="receiveMethod" value="details" checked />
+                  <div class="method-card">
+                    <span class="method-title">Account Detail</span>
+                    <span class="method-subtitle">Share wallet address + details</span>
+                  </div>
+                </label>
+                <label class="method-option">
+                  <input type="radio" name="receiveMethod" value="qr" />
+                  <div class="method-card">
+                    <span class="method-title">Upload QR</span>
+                    <span class="method-subtitle">Add a QR to receive payment</span>
+                  </div>
+                </label>
+              </div>
+
+              <div class="receive-details" id="receiveDetails">
+                <label class="input-group">
+                  <span class="input-label">Wallet Address</span>
+                  <input
+                    type="text"
+                    class="text-input"
+                    id="walletAddressInput"
+                    placeholder="0x2F3A...9b1C"
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="input-group">
+                  <span class="input-label">Account Detail</span>
+                  <textarea
+                    class="text-area"
+                    id="accountDetailInput"
+                    placeholder="Example: Name, network, or additional info"
+                    rows="2"
+                  ></textarea>
+                </label>
+              </div>
+
+              <div class="receive-qr hidden" id="receiveQr">
+                <label class="upload-card" for="qrUpload">
+                  <input type="file" id="qrUpload" accept="image/*" />
+                  <div class="upload-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M10 4V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M6 8L10 12L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="3" y="14" width="14" height="3" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </div>
+                  <div class="upload-text">
+                    <span class="upload-title">Upload QR to receive payment</span>
+                    <span class="upload-subtitle">PNG, JPG up to 5MB</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            
+          </div>
+
+          <!-- Amount Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div>
+                <h2 class="section-title">Amount</h2>
+                <p class="section-subtitle">How much would you like to request?</p>
+              </div>
+            </div>
+
+            <div class="amount-input-wrapper">
+              <input type="number" id="amountInput" class="amount-input" value="100" min="0" step="0.01" />
+              <button class="unit-dropdown" id="unitDropdown" type="button">
+                <div class="asset-icon tether">
+                  <img
+                    src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=002"
+                    alt="Tether logo"
+                    width="18"
+                    height="18"
+                  />
+                </div>
+                <span class="unit-label">USDT</span>
+                <svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="quick-amounts">
+              <button class="quick-amount-btn" data-amount="10">$10</button>
+              <button class="quick-amount-btn" data-amount="50">$50</button>
+              <button class="quick-amount-btn active" data-amount="100">$100</button>
+              <button class="quick-amount-btn" data-amount="custom">Custom</button>
+            </div>
+          </div>
+
+          <!-- Message Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <h2 class="section-title">Message</h2>
+              <span class="optional-badge">Optional</span>
+            </div>
+            <textarea id="messageInput" class="description-input" placeholder="What's this payment for?" rows="2"></textarea>
+          </div>
+
+          <!-- Receive Message Toggle -->
+          <div class="fiat-toggle">
+            <span class="fiat-label">Receive Message</span>
+            <label class="toggle">
+              <input type="checkbox" id="receiveMessageToggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Navigation Footer -->
+        <footer class="form-footer">
+          <button class="nav-btn back">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </button>
+          <button class="nav-btn next">
+            Next
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            
+          </button>
+        </footer>
+      </section>
+
+      <!-- Right Panel: Preview -->
+      <section class="preview-panel">
+        <!-- Floating Payment Card -->
+        <div class="preview-card">
+          <div class="payment-amount">
+            <span class="amount-value" id="previewAmount">100</span>
+          </div>
+
+          <div class="payment-crypto">
+            <img
+              src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=002"
+              alt="Tether logo"
+              width="16"
+              height="16"
+            />
+            <span id="previewCrypto">100.00 USDT</span>
+          </div>
+
+          <div class="payment-message" id="previewMessageWrap">
+            <span id="previewMessage">Payment request</span>
+          </div>
+
+          <div class="payment-status">
+            <div class="status-icon">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 4V7L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span>Waiting for payment from <strong id="previewRecipient">anyone</strong></span>
+          </div>
+
+          <div class="share-row">
+            <button class="share-pill" type="button">QR</button>
+            <button class="share-pill" type="button">Copy link</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="checkout.js"></script>
+  </body>
+</html>
