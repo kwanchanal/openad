@@ -4,7 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Payment Link Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.min.css"
+    />
     <link rel="stylesheet" href="checkout.css" />
   </head>
   <body>
@@ -19,63 +26,110 @@
         </header>
 
         <div class="sidebar__body">
-          <section class="block">
-            <div class="block__head">
-              <div>
-                <h2>Payment method</h2>
-                <p class="muted">How would you like to get paid?</p>
+          <div class="sidebar__section" data-step="form">
+            <section class="block">
+              <div class="block__head">
+                <div>
+                  <h2>Payment method</h2>
+                  <p class="muted">How would you like to get paid?</p>
+                </div>
               </div>
-              <button class="link-btn" type="button">
-                <span class="material-symbols-outlined">add</span>
-                Add manually
-              </button>
-            </div>
-          </section>
+              <label class="field">
+                <span>Wallet Address</span>
+                <input id="wallet" type="text" placeholder="0x2F3A...9b1C" />
+              </label>
+              <label class="upload-card upload-card--input">
+                <input id="qr-upload" type="file" accept="image/*" />
+                <div class="upload-card__icon">
+                  <span class="material-symbols-outlined">upload</span>
+                </div>
+                <div>
+                  <h3>Upload QR to receive payment</h3>
+                  <p class="muted">PNG , JPG up to 5MB</p>
+                </div>
+                <button class="upload-reset" type="button" data-reset="qr" aria-label="Reset QR">
+                  <span class="material-symbols-outlined">undo</span>
+                </button>
+              </label>
+            </section>
 
-          <section class="block">
-            <label class="field">
-              <span>Wallet Address</span>
-              <input id="wallet" type="text" placeholder="0x2F3A...9b1C" />
-            </label>
-            <label class="field">
-              <span>Account Detail</span>
-              <input id="detail" type="text" placeholder="Example: Name, network, or additional info" />
-            </label>
-            <label class="field">
-              <span class="field__row">
+            <section class="block">
+              <div class="block__head">
+                <div>
+                  <h2>Account Detail</h2>
+                  <p class="muted">How would you like to express?</p>
+                </div>
+              </div>
+              <label class="upload-card upload-card--input">
+                <input id="avatar-upload" type="file" accept="image/*" />
+                <div class="upload-card__icon">
+                  <span class="material-symbols-outlined">upload</span>
+                </div>
+                <div>
+                  <h3>Upload Profile Image</h3>
+                  <p class="muted">PNG , JPG up to 5MB</p>
+                </div>
+                <button class="upload-reset" type="button" data-reset="avatar" aria-label="Reset avatar">
+                  <span class="material-symbols-outlined">undo</span>
+                </button>
+              </label>
+              <label class="field">
+                <span>Name</span>
+                <input id="name" type="text" placeholder="Your display name" />
+              </label>
+              <label class="field">
+                <span>Bio</span>
+                <textarea id="bio" rows="3" placeholder="Short description or tagline"></textarea>
+              </label>
+              <label class="field">
                 <span>Message</span>
-                <em>Optional</em>
-              </span>
-              <input id="message" type="text" placeholder="What's this payment for?" />
-            </label>
-            <div class="upload-card">
-              <div class="upload-card__icon">
-                <span class="material-symbols-outlined">download</span>
-              </div>
-              <div>
-                <h3>Upload QR to receive payment</h3>
-                <p class="muted">PNG , JPG up to 5MB</p>
-              </div>
-            </div>
-          </section>
+                <textarea id="message" rows="2" placeholder="What's this payment for?"></textarea>
+              </label>
+            </section>
+          </div>
 
-          <section class="block">
-            <label class="toggle">
-              <span>Receive Message</span>
-              <input id="receive" type="checkbox" />
-              <span class="toggle__ui"></span>
-            </label>
-          </section>
+          <div class="sidebar__section is-hidden" data-step="review">
+            <section class="block">
+              <div class="block__head">
+                <div>
+                  <h2>Review & Share</h2>
+                  <p class="muted">Copy or share your payment link.</p>
+                </div>
+              </div>
+              <label class="field">
+                <span>Share link</span>
+                <input id="share-link" type="text" readonly value="wemint.link/kwanchanal" />
+              </label>
+              <div class="share-actions">
+                <button class="share-btn" type="button" data-copy="#share-link">
+                  <span class="material-symbols-outlined">content_copy</span>
+                  Copy link
+                </button>
+                <button class="share-btn ghost" id="share-btn" type="button">
+                  <span class="material-symbols-outlined">share</span>
+                  Share link
+                </button>
+                <button class="share-btn ghost" id="download-btn" type="button">
+                  <span class="material-symbols-outlined">download</span>
+                  Download image
+                </button>
+              </div>
+              <p class="muted share-note">Share to recipient transfer for easy payment.</p>
+            </section>
+          </div>
         </div>
 
         <div class="sidebar__footer">
-          <button class="nav-btn" type="button">
+          <button class="nav-btn" id="btn-back" type="button">
             <span class="material-symbols-outlined">chevron_left</span>
             Back
           </button>
-          <button class="nav-btn" type="button">
-            Next
-            <span class="material-symbols-outlined">chevron_right</span>
+          <button class="nav-btn nav-btn--stack" id="btn-next" type="button">
+            <span class="nav-btn__top">
+              Next
+              <span class="material-symbols-outlined">chevron_right</span>
+            </span>
+            <span class="nav-btn__sub">Review & Share</span>
           </button>
         </div>
       </aside>
@@ -85,39 +139,67 @@
           <div class="preview-card">
             <img class="preview-card__bg" src="asset/phone-bg2.png" alt="" />
             <div class="preview-card__content">
-              <img class="preview-avatar" src="asset/phone-profile.png" alt="Profile" />
-              <h3 id="preview-name">Kwanchanal Geographic</h3>
-              <p id="preview-detail">
-                Scuba Diving School and Recreation
-                <br />
-                located in Koh Tao, Thailand
-              </p>
-              <div class="preview-message" id="preview-message">
-                It's Kwan! Thank You For Support 🙏🏻
+              <div class="preview-top">
+                <img class="preview-avatar" src="asset/phone-profile.png" alt="Profile" />
+                <h3 id="preview-name">Kwanchanal Geographic</h3>
+                <p id="preview-detail">
+                  Scuba Diving School and Recreation
+                  <br />
+                  located in Koh Tao, Thailand
+                </p>
+                <div class="preview-message" id="preview-message">
+                  It's Kwan! Thank You For Support 🙏🏻
+                </div>
               </div>
-              <p class="preview-label">Scan To Send</p>
-              <div class="preview-qr">
-                <img src="asset/phone-qr.png" alt="QR" />
+              <div class="preview-scan">
+                <p class="preview-label">Scan To Send</p>
+                <div class="preview-qr">
+                  <img src="asset/phone-qr.png" alt="QR" />
+                </div>
+                <div class="preview-or">
+                  <span class="preview-or__line"></span>
+                  <span class="preview-or__text">Or</span>
+                  <span class="preview-or__line"></span>
+                </div>
+                <p class="preview-copy-title">Copy Account Detail To Use</p>
+                <div class="preview-pill">
+                  <span id="preview-wallet">0x0df..................52EFd</span>
+                  <span class="material-symbols-outlined preview-copy-icon" aria-hidden="true">content_copy</span>
+                </div>
+                <p class="preview-note">
+                  To avoid mistakes, Please check recipient account details are correct before proceeding with transfer
+                </p>
               </div>
-              <div class="preview-or">
-                <span class="preview-or__line"></span>
-                <span class="preview-or__text">Or</span>
-                <span class="preview-or__line"></span>
-              </div>
-              <p class="preview-copy-title">Copy Account Detail To Use</p>
-              <div class="preview-pill">
-                <span>0x0df..................52EFd</span>
-                <img class="preview-copy-icon" src="https://www.figma.com/api/mcp/asset/7f01e4ff-8cfb-4ce6-bd26-b2141b444485" alt="" />
-              </div>
-              <p class="preview-note">
-                To avoid mistakes, Please check recipient account details are correct before proceeding with transfer
-              </p>
             </div>
           </div>
         </div>
       </main>
     </div>
 
+    <div class="crop-modal" id="crop-modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="crop-modal__backdrop" data-close></div>
+      <div class="crop-modal__panel">
+        <div class="crop-modal__header">
+          <h3 id="crop-title">Crop image</h3>
+          <button class="crop-modal__close" type="button" data-close aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="crop-modal__body">
+          <div class="crop-modal__viewport">
+            <img id="crop-image" alt="Crop preview" />
+          </div>
+          <p class="crop-modal__hint muted">Drag to crop into a square.</p>
+        </div>
+        <div class="crop-modal__footer">
+          <button class="btn ghost" type="button" data-close>Cancel</button>
+          <button class="btn primary" id="crop-apply" type="button">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.min.js"></script>
     <script src="checkout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </body>
 </html>
