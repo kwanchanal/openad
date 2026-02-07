@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initGlobe();
   initOrbits();
   initYouWord();
+  initContactTyping();
+  initNavMenu();
 });
 
 function initGlobe() {
@@ -222,6 +224,78 @@ function initGlobe() {
 
   window.addEventListener("resize", handleResize);
   reduceMotion.addEventListener("change", start);
+}
+
+function initContactTyping() {
+  const typingText = document.getElementById("contactText");
+  if (!typingText) {
+    return;
+  }
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const typingMessages = [
+    "Tell us how we can help you",
+    "Don't Hesitate to contact us",
+    "We'd love to hear from you",
+  ];
+
+  let typingMessageIndex = 0;
+  let typingCharIndex = 0;
+  let typingForward = true;
+
+  if (reduceMotion.matches) {
+    typingText.textContent = typingMessages[0];
+    return;
+  }
+
+  const runTyping = () => {
+    const currentMessage = typingMessages[typingMessageIndex];
+
+    if (typingForward) {
+      typingCharIndex += 1;
+      typingText.textContent = currentMessage.slice(0, typingCharIndex);
+      if (typingCharIndex === currentMessage.length) {
+        typingForward = false;
+        setTimeout(runTyping, 1200);
+        return;
+      }
+    } else {
+      typingCharIndex -= 1;
+      typingText.textContent = currentMessage.slice(0, typingCharIndex);
+      if (typingCharIndex === 0) {
+        typingForward = true;
+        typingMessageIndex = (typingMessageIndex + 1) % typingMessages.length;
+        setTimeout(runTyping, 500);
+        return;
+      }
+    }
+
+    const speed = typingForward ? 45 : 28;
+    setTimeout(runTyping, speed);
+  };
+
+  setTimeout(runTyping, 700);
+}
+
+function initNavMenu() {
+  const navPill = document.querySelector(".nav__pill");
+  const toggle = document.querySelector(".nav__toggle");
+  const drawerLinks = document.querySelectorAll(".nav__drawer a");
+  if (!navPill || !toggle) {
+    return;
+  }
+
+  toggle.addEventListener("click", () => {
+    const isOpen = navPill.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  drawerLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      navPill.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
 }
 
 function clamp(value, min, max) {
