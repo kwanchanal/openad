@@ -152,7 +152,7 @@ textarea {
   top: 0;
   align-self: start;
   max-height: calc(100vh - 44px);
-  overflow: hidden;
+  overflow: auto;
 }
 
 .sidebar-brand {
@@ -323,6 +323,11 @@ textarea {
   color: currentColor;
 }
 
+.nav-link:hover .lock-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
 .nav-link.is-locked:hover .lock-icon {
   opacity: 1;
   transform: scale(1);
@@ -350,7 +355,7 @@ textarea {
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: auto;
   align-self: flex-start;
   box-shadow: var(--shadow-sm);
 }
@@ -363,16 +368,26 @@ textarea {
 }
 
 .signup-pill {
-  align-self: flex-start;
+  width: 100%;
   border: 1px solid var(--border);
-  background: var(--primary);
-  color: var(--primary-foreground);
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 12px;
-  box-shadow: var(--shadow-xs);
+  background: #fff;
+  color: var(--foreground);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.signup-pill:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--ring);
+}
+
+.signup-pill:active {
+  box-shadow: var(--shadow-xs);
 }
 
 .signup-copy {
@@ -453,7 +468,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  padding: 16px 28px 24px 24px;
+  padding: 6px 28px 24px 24px;
   overflow: auto;
   height: 100%;
   scrollbar-gutter: stable both-edges;
@@ -477,10 +492,21 @@ textarea {
 
 .topbar {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
+}
+
+.topbar-row {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-row--menu {
+  display: none;
 }
 
 .page-title-group {
@@ -498,6 +524,10 @@ textarea {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+#sidebarToggle {
+  display: none;
 }
 
 /* ── Buttons ── */
@@ -670,6 +700,18 @@ textarea {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.switch-sm {
+  transform: scale(0.85);
+  transform-origin: right center;
 }
 
 .social-slot {
@@ -1597,7 +1639,11 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
 }
 
 .field label {
@@ -1622,6 +1668,26 @@ textarea {
   font-size: 14px;
   line-height: 1.4;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.field textarea {
+  border: 1px solid var(--input);
+  border-radius: calc(var(--radius) - 2px);
+  padding: 10px 12px;
+  font-family: inherit;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 1.4;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  resize: vertical;
+  min-height: 90px;
+}
+
+.field textarea:focus-visible {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 35%, transparent);
 }
 
 .field input[type="file"] {
@@ -1743,22 +1809,153 @@ textarea {
 }
 
 /* ── Responsive ── */
-@media (max-width: 1100px) {
+@media (max-width: 980px) {
   .app-shell {
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .sidebar {
+    position: relative;
+    top: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .main {
+    max-height: none;
+    height: auto;
+  }
+
+  .main-scroll {
+    height: auto;
   }
 
   .preview {
-    display: none;
+    display: flex;
+    position: relative;
+    top: auto;
+    max-height: none;
+    padding-bottom: 0;
   }
 }
 
 @media (max-width: 760px) {
   .app-shell {
     grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 16px;
   }
 
   .sidebar {
-    order: 2;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(280px, 85vw);
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 16px 12px 20px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 30;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: hsl(0 0% 0% / 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 20;
+  }
+
+  .sidebar-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .main {
+    padding: 16px;
+  }
+
+  .preview-linkbar {
+    width: 100%;
+  }
+
+  .phone {
+    width: min(320px, 100%);
+  }
+
+  #sidebarToggle {
+    display: inline-flex;
+  }
+
+  .link-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .link-right {
+    align-self: flex-end;
+  }
+
+  .link-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .link-tool-icons {
+    flex-wrap: wrap;
+  }
+
+  .link-url {
+    max-width: 100%;
+  }
+
+  .layout-option {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .layout-preview {
+    width: 100%;
+  }
+
+  .thumbnail-row {
+    flex-wrap: wrap;
   }
 }
+
+@media (max-height: 760px) {
+  .sidebar {
+    max-height: calc(100vh - 20px);
+    overflow: auto;
+    padding-bottom: 16px;
+  }
+
+  .sidebar-signup {
+    margin-top: 0;
+  }
+
+  .sidebar-footer {
+    padding-bottom: 8px;
+  }
+}
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .topbar-row {
+    justify-content: space-between;
+  }
+
+  .topbar-row--menu {
+    display: flex;
+  }

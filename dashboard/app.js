@@ -53,6 +53,11 @@ const defaultAppearance = {
 const appearance = FORCE_APPEARANCE_MOCK
   ? { ...defaultAppearance }
   : storage.get("wemint_appearance", defaultAppearance);
+const visibility = storage.get("wemint_visibility", {
+  showProfileImage: true,
+  showDisplayName: true,
+  showBio: true,
+});
 
 function escapeHTML(str) {
   const div = document.createElement("div");
@@ -95,10 +100,8 @@ const elements = {
   designModal: document.getElementById("designModal"),
   designForm: document.getElementById("designForm"),
   closeDesignBtn: document.getElementById("closeDesignBtn"),
-  profileImageUrl: document.getElementById("profileImageUrl"),
   profileImageFile: document.getElementById("profileImageFile"),
   profileImageHint: document.getElementById("profileImageHint"),
-  backgroundImageUrl: document.getElementById("backgroundImageUrl"),
   backgroundImageFile: document.getElementById("backgroundImageFile"),
   backgroundImageHint: document.getElementById("backgroundImageHint"),
   backgroundColor: document.getElementById("backgroundColor"),
@@ -117,6 +120,12 @@ const elements = {
   closeCropBtn: document.getElementById("closeCropBtn"),
   cropCancelBtn: document.getElementById("cropCancelBtn"),
   cropSaveBtn: document.getElementById("cropSaveBtn"),
+  sidebar: document.getElementById("sidebar"),
+  sidebarToggle: document.getElementById("sidebarToggle"),
+  sidebarOverlay: document.getElementById("sidebarOverlay"),
+  showProfileImage: document.getElementById("showProfileImage"),
+  showDisplayName: document.getElementById("showDisplayName"),
+  showBio: document.getElementById("showBio"),
 };
 
 let editingId = null;
@@ -136,6 +145,7 @@ function saveAll() {
   storage.set("wemint_links", links);
   storage.set("wemint_social_links", socialLinks);
   storage.set("wemint_appearance", appearance);
+  storage.set("wemint_visibility", visibility);
 }
 
 function renderProfile() {
@@ -143,6 +153,10 @@ function renderProfile() {
   elements.profileMeta.textContent = profile.bio;
   elements.previewName.textContent = profile.name;
   elements.previewBio.textContent = profile.bio;
+  elements.profileName.style.display = visibility.showDisplayName ? "" : "none";
+  elements.previewName.style.display = visibility.showDisplayName ? "" : "none";
+  elements.profileMeta.style.display = visibility.showBio ? "" : "none";
+  elements.previewBio.style.display = visibility.showBio ? "" : "none";
   updateAvatarInitials();
   const username = profile.username ? profile.username.trim() : "";
   if (elements.previewLinkbarUser) {
@@ -168,6 +182,7 @@ function applyAppearance() {
 
   document.querySelectorAll(".profile-avatar, .phone-avatar").forEach((avatar) => {
     const hasImage = Boolean(appearance.profileImageUrl);
+    avatar.style.display = visibility.showProfileImage ? "" : "none";
     avatar.style.backgroundImage = hasImage ? `url(${appearance.profileImageUrl})` : "none";
     avatar.style.backgroundSize = "cover";
     avatar.style.backgroundPosition = "center";
@@ -263,30 +278,13 @@ function saveCrop() {
 }
 
 function openDesignModal() {
-  const profileIsLocal = appearance.profileImageUrl?.startsWith("data:");
   const backgroundIsLocal = appearance.backgroundImageUrl?.startsWith("data:");
 
-  elements.profileImageUrl.value = profileIsLocal ? "" : appearance.profileImageUrl || "";
-  elements.backgroundImageUrl.value = backgroundIsLocal ? "" : appearance.backgroundImageUrl || "";
-  elements.profileImageUrl.dataset.dirty = "false";
-  elements.backgroundImageUrl.dataset.dirty = "false";
   if (elements.profileImageFile) elements.profileImageFile.value = "";
   if (elements.backgroundImageFile) elements.backgroundImageFile.value = "";
   setImageHint(
-    elements.profileImageHint,
-    profileIsLocal
-      ? "Using local file (stored in browser)."
-      : appearance.profileImageUrl
-      ? "Using URL."
-      : "Supports JPG, PNG, WebP."
-  );
-  setImageHint(
     elements.backgroundImageHint,
-    backgroundIsLocal
-      ? "Using local file (stored in browser)."
-      : appearance.backgroundImageUrl
-      ? "Using URL."
-      : "Supports JPG, PNG, WebP."
+    backgroundIsLocal ? "Using local file (stored in browser)." : "Supports JPG, PNG, WebP."
   );
   elements.backgroundColor.value = appearance.backgroundColor || "";
   elements.buttonColor.value = appearance.buttonColor || "";
@@ -723,6 +721,14 @@ function openProfileModal() {
   elements.profileNameInput.value = profile.name;
   elements.profileUsernameInput.value = profile.username || "";
   elements.profileMetaInput.value = profile.bio;
+  const profileIsLocal = appearance.profileImageUrl?.startsWith("data:");
+  setImageHint(
+    elements.profileImageHint,
+    profileIsLocal ? "Using local file (stored in browser)." : "Supports JPG, PNG, WebP."
+  );
+  if (elements.showProfileImage) elements.showProfileImage.checked = visibility.showProfileImage;
+  if (elements.showDisplayName) elements.showDisplayName.checked = visibility.showDisplayName;
+  if (elements.showBio) elements.showBio.checked = visibility.showBio;
   elements.profileModal.classList.add("is-open");
   elements.profileModal.setAttribute("aria-hidden", "false");
 }
@@ -843,6 +849,7 @@ function initEvents() {
     profile.bio = elements.profileMetaInput.value.trim();
     saveAll();
     renderProfile();
+    applyAppearance();
     closeProfileModal();
   });
 
@@ -877,14 +884,57 @@ function initEvents() {
   elements.cropCancelBtn.addEventListener("click", closeCropModal);
   elements.cropSaveBtn.addEventListener("click", saveCrop);
 
+  if (elements.sidebarToggle && elements.sidebar && elements.sidebarOverlay) {
+    const closeSidebar = () => {
+      elements.sidebar.classList.remove("is-open");
+      elements.sidebarOverlay.classList.remove("is-visible");
+      elements.sidebarOverlay.setAttribute("aria-hidden", "true");
+    };
+
+    const openSidebar = () => {
+      elements.sidebar.classList.add("is-open");
+      elements.sidebarOverlay.classList.add("is-visible");
+      elements.sidebarOverlay.setAttribute("aria-hidden", "false");
+    };
+
+    elements.sidebarToggle.addEventListener("click", () => {
+      const isOpen = elements.sidebar.classList.contains("is-open");
+      if (isOpen) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+
+    elements.sidebarOverlay.addEventListener("click", closeSidebar);
+  }
+
+  if (elements.showProfileImage) {
+    elements.showProfileImage.addEventListener("change", () => {
+      visibility.showProfileImage = elements.showProfileImage.checked;
+      saveAll();
+      applyAppearance();
+    });
+  }
+
+  if (elements.showDisplayName) {
+    elements.showDisplayName.addEventListener("change", () => {
+      visibility.showDisplayName = elements.showDisplayName.checked;
+      saveAll();
+      renderProfile();
+    });
+  }
+
+  if (elements.showBio) {
+    elements.showBio.addEventListener("change", () => {
+      visibility.showBio = elements.showBio.checked;
+      saveAll();
+      renderProfile();
+    });
+  }
+
   elements.designForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (elements.profileImageUrl.dataset.dirty === "true") {
-      appearance.profileImageUrl = elements.profileImageUrl.value.trim();
-    }
-    if (elements.backgroundImageUrl.dataset.dirty === "true") {
-      appearance.backgroundImageUrl = elements.backgroundImageUrl.value.trim();
-    }
     appearance.backgroundColor = elements.backgroundColor.value.trim();
     appearance.buttonColor = elements.buttonColor.value.trim();
     appearance.profileFontColor = elements.profileFontColor.value.trim();
@@ -895,22 +945,6 @@ function initEvents() {
   });
 
   elements.resetDesignBtn.addEventListener("click", resetAppearance);
-
-  elements.profileImageUrl.addEventListener("input", () => {
-    elements.profileImageUrl.dataset.dirty = "true";
-    setImageHint(
-      elements.profileImageHint,
-      elements.profileImageUrl.value.trim() ? "Using URL." : "Supports JPG, PNG, WebP."
-    );
-  });
-
-  elements.backgroundImageUrl.addEventListener("input", () => {
-    elements.backgroundImageUrl.dataset.dirty = "true";
-    setImageHint(
-      elements.backgroundImageHint,
-      elements.backgroundImageUrl.value.trim() ? "Using URL." : "Supports JPG, PNG, WebP."
-    );
-  });
 
   if (elements.profileImageFile) {
     elements.profileImageFile.addEventListener("change", () => {
@@ -924,8 +958,6 @@ function initEvents() {
           appearance.profileImageUrl = dataUrl;
           saveAll();
           applyAppearance();
-          elements.profileImageUrl.value = "";
-          elements.profileImageUrl.dataset.dirty = "false";
           setImageHint(elements.profileImageHint, "Using local file (stored in browser).");
         },
       });
@@ -944,8 +976,6 @@ function initEvents() {
           appearance.backgroundImageUrl = dataUrl;
           saveAll();
           applyAppearance();
-          elements.backgroundImageUrl.value = "";
-          elements.backgroundImageUrl.dataset.dirty = "false";
           setImageHint(elements.backgroundImageHint, "Using local file (stored in browser).");
         },
       });

@@ -32,8 +32,10 @@
       <span class="banner-text" id="bannerText">Bio That Monetize - Conversion in One-Page</span>
     </div>
 
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
     <div class="app-shell">
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <nav class="nav">
           <div class="nav-section">
             <button class="nav-title" type="button">Your Link</button>
@@ -58,18 +60,24 @@
                 <span class="material-symbols-outlined nav-icon">palette</span>
                 Design
               </button>
+              <button class="nav-link">
+                <span class="material-symbols-outlined nav-icon">insights</span>
+                Insights
+              </button>
             </div>
           </div>
           <div class="nav-section">
             <button class="nav-title" type="button">Tools</button>
             <div class="nav-items">
               <button class="nav-link">
-                <span class="material-symbols-outlined nav-icon">request_quote</span>
-                Send Invoice
+                <span class="material-symbols-outlined nav-icon">payments</span>
+                Add Payment
+                <span class="material-symbols-outlined lock-icon" aria-hidden="true">lock</span>
               </button>
               <button class="nav-link">
-                <span class="material-symbols-outlined nav-icon">insights</span>
-                Insights
+                <span class="material-symbols-outlined nav-icon">paid</span>
+                Get Paid
+                <span class="material-symbols-outlined lock-icon" aria-hidden="true">lock</span>
               </button>
             </div>
           </div>
@@ -78,10 +86,7 @@
         <section class="sidebar-signup">
           <p class="signup-title">Love it?</p>
           <button class="signup-pill" type="button">Sign Up</button>
-          <p class="signup-copy">
-            to get your page<br />
-            it’s free!
-          </p>
+          <p class="signup-copy">to get your link, it’s free!</p>
         </section>
 
         <div class="sidebar-footer">
@@ -101,12 +106,21 @@
       <main class="main">
         <div class="main-scroll">
           <header class="topbar">
-            <div class="page-title-group">
-              <div class="page-title">Hello,</div>
-              <button class="pill-dashed" id="topbarAddBtn" type="button">
-                <span class="pill-icon">+</span>
-                Tell The Word What You Do
-              </button>
+            <div class="topbar-row topbar-row--menu">
+              <div class="topbar-actions">
+                <button class="icon-btn" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+                  <span class="material-symbols-outlined">menu</span>
+                </button>
+              </div>
+            </div>
+            <div class="topbar-row">
+              <div class="page-title-group">
+                <div class="page-title">Hello,</div>
+                <button class="pill-dashed" id="topbarAddBtn" type="button">
+                  <span class="pill-icon">+</span>
+                  Tell The Word What You Do
+                </button>
+              </div>
             </div>
           </header>
 
@@ -255,12 +269,35 @@
             <p class="field-hint">wemint.link/your-username</p>
           </div>
           <div class="field">
-            <label for="profileNameInput">Display name</label>
+            <div class="field-head">
+              <label for="profileImageFile">Upload profile image</label>
+              <label class="switch switch-sm">
+                <input type="checkbox" id="showProfileImage" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <input id="profileImageFile" type="file" accept="image/*" />
+            <p class="field-hint" id="profileImageHint">Supports JPG, PNG, WebP.</p>
+          </div>
+          <div class="field">
+            <div class="field-head">
+              <label for="profileNameInput">Display name</label>
+              <label class="switch switch-sm">
+                <input type="checkbox" id="showDisplayName" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
             <input id="profileNameInput" name="name" type="text" required />
           </div>
           <div class="field">
-            <label for="profileMetaInput">Bio</label>
-            <input id="profileMetaInput" name="bio" type="text" />
+            <div class="field-head">
+              <label for="profileMetaInput">Bio</label>
+              <label class="switch switch-sm">
+                <input type="checkbox" id="showBio" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <textarea id="profileMetaInput" name="bio" rows="3"></textarea>
           </div>
           <button class="primary" type="submit">Save</button>
         </form>
@@ -296,23 +333,10 @@
         <div class="modal-body">
           <form id="designForm">
             <div class="field">
-              <label for="profileImageUrl">Profile image URL</label>
-              <input id="profileImageUrl" name="profileImageUrl" type="url" placeholder="https://" />
+              <label for="backgroundImageFile">Upload background image</label>
+              <input id="backgroundImageFile" type="file" accept="image/*" />
+              <p class="field-hint" id="backgroundImageHint">Supports JPG, PNG, WebP.</p>
             </div>
-            <div class="field">
-            <label for="profileImageFile">Upload profile image</label>
-            <input id="profileImageFile" type="file" accept="image/*" />
-            <p class="field-hint" id="profileImageHint">Supports JPG, PNG, WebP.</p>
-          </div>
-          <div class="field">
-            <label for="backgroundImageUrl">Background image URL</label>
-            <input id="backgroundImageUrl" name="backgroundImageUrl" type="url" placeholder="https://" />
-          </div>
-          <div class="field">
-            <label for="backgroundImageFile">Upload background image</label>
-            <input id="backgroundImageFile" type="file" accept="image/*" />
-            <p class="field-hint" id="backgroundImageHint">Supports JPG, PNG, WebP.</p>
-          </div>
           <div class="field">
             <label for="backgroundColor">Background color</label>
             <div class="color-input">
