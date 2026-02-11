@@ -13,9 +13,9 @@ const storage = {
 };
 
 const defaultProfile = {
-  name: "Kwanchanal Geographic",
-  username: "khwan",
-  bio: "Bio-native creator · Bangkok",
+  name: "Kwanchanal Grographic",
+  username: "kwan",
+  bio: "Retired designer turn FinTech Product Manager, Mostly underwater",
 };
 
 const defaultLinks = [
@@ -37,17 +37,22 @@ const defaultLinks = [
   },
 ];
 
-const profile = storage.get("wemint_profile", defaultProfile);
+const FORCE_PROFILE_MOCK = true;
+const FORCE_APPEARANCE_MOCK = true;
+const profile = FORCE_PROFILE_MOCK ? { ...defaultProfile } : storage.get("wemint_profile", defaultProfile);
 const links = storage.get("wemint_links", defaultLinks);
 const socialLinks = storage.get("wemint_social_links", {});
-const appearance = storage.get("wemint_appearance", {
+const defaultAppearance = {
   profileImageUrl: "",
   backgroundImageUrl: "",
-  backgroundColor: "#0b201b",
-  buttonColor: "#75d9a0",
-  profileFontColor: "#dff4e7",
-  buttonFontColor: "#0b201b",
-});
+  backgroundColor: "#ffffff",
+  buttonColor: "#b3b3b3",
+  profileFontColor: "#111827",
+  buttonFontColor: "#f9fafb",
+};
+const appearance = FORCE_APPEARANCE_MOCK
+  ? { ...defaultAppearance }
+  : storage.get("wemint_appearance", defaultAppearance);
 
 function escapeHTML(str) {
   const div = document.createElement("div");
@@ -63,6 +68,7 @@ const elements = {
   profileMeta: document.getElementById("profileMeta"),
   previewBio: document.getElementById("previewBio"),
   previewLinkbarUser: document.getElementById("previewUsername"),
+  downloadPreviewBtn: document.getElementById("downloadPreviewBtn"),
   linkModal: document.getElementById("linkModal"),
   linkForm: document.getElementById("linkForm"),
   addLinkBtn: document.getElementById("addLinkBtn"),
@@ -123,23 +129,24 @@ function renderProfile() {
   elements.profileMeta.textContent = profile.bio;
   elements.previewName.textContent = profile.name;
   elements.previewBio.textContent = profile.bio;
+  updateAvatarInitials();
   const username = profile.username ? profile.username.trim() : "";
   if (elements.previewLinkbarUser) {
     elements.previewLinkbarUser.textContent = username
-      ? `wemint.app/${username}`
-      : "wemint.app/";
+      ? `wemint.link/${username}`
+      : "wemint.link/";
   }
 }
 
 function applyAppearance() {
   const phone = document.querySelector(".phone");
   if (phone) {
-    phone.style.setProperty("--phone-profile-color", appearance.profileFontColor || "#dff4e7");
-    phone.style.setProperty("--phone-button-color", appearance.buttonColor || "#75d9a0");
-    phone.style.setProperty("--phone-button-text", appearance.buttonFontColor || "#0b201b");
-    phone.style.setProperty("--phone-link-color", appearance.buttonColor || "#75d9a0");
-    phone.style.setProperty("--phone-link-text", appearance.buttonFontColor || "#0b201b");
-    phone.style.backgroundColor = appearance.backgroundColor || "#0b201b";
+    phone.style.setProperty("--phone-profile-color", appearance.profileFontColor || "#111827");
+    phone.style.setProperty("--phone-button-color", appearance.buttonColor || "#b3b3b3");
+    phone.style.setProperty("--phone-button-text", appearance.buttonFontColor || "#f9fafb");
+    phone.style.setProperty("--phone-link-color", appearance.buttonColor || "#b3b3b3");
+    phone.style.setProperty("--phone-link-text", appearance.buttonFontColor || "#f9fafb");
+    phone.style.backgroundColor = appearance.backgroundColor || "#ffffff";
     phone.style.backgroundImage = appearance.backgroundImageUrl
       ? `url(${appearance.backgroundImageUrl})`
       : "none";
@@ -152,6 +159,37 @@ function applyAppearance() {
     avatar.style.backgroundPosition = "center";
     avatar.style.backgroundRepeat = "no-repeat";
     avatar.classList.toggle("has-image", hasImage);
+  });
+}
+
+function getInitials(name) {
+  if (!name) return "??";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "??";
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
+function ensureAvatarInitials(avatar) {
+  let el = avatar.querySelector(".avatar-initials");
+  if (!el) {
+    el = document.createElement("span");
+    el.className = "avatar-initials";
+    el.setAttribute("aria-hidden", "true");
+    avatar.appendChild(el);
+  }
+  return el;
+}
+
+function updateAvatarInitials() {
+  const initials = getInitials(profile.name);
+  const hasImage = Boolean(appearance.profileImageUrl);
+  document.querySelectorAll(".profile-avatar, .phone-avatar").forEach((avatar) => {
+    const el = ensureAvatarInitials(avatar);
+    el.textContent = initials;
+    avatar.classList.toggle("has-initials", !hasImage);
   });
 }
 
@@ -197,16 +235,16 @@ function openDesignModal() {
   elements.profileFontColor.value = appearance.profileFontColor || "";
   elements.buttonFontColor.value = appearance.buttonFontColor || "";
   if (elements.backgroundColorPicker) {
-    elements.backgroundColorPicker.value = appearance.backgroundColor || "#0b201b";
+    elements.backgroundColorPicker.value = appearance.backgroundColor || defaultAppearance.backgroundColor;
   }
   if (elements.buttonColorPicker) {
-    elements.buttonColorPicker.value = appearance.buttonColor || "#75d9a0";
+    elements.buttonColorPicker.value = appearance.buttonColor || defaultAppearance.buttonColor;
   }
   if (elements.profileFontColorPicker) {
-    elements.profileFontColorPicker.value = appearance.profileFontColor || "#dff4e7";
+    elements.profileFontColorPicker.value = appearance.profileFontColor || defaultAppearance.profileFontColor;
   }
   if (elements.buttonFontColorPicker) {
-    elements.buttonFontColorPicker.value = appearance.buttonFontColor || "#0b201b";
+    elements.buttonFontColorPicker.value = appearance.buttonFontColor || defaultAppearance.buttonFontColor;
   }
   elements.designModal.classList.add("is-open");
 }
@@ -214,10 +252,10 @@ function openDesignModal() {
 function resetAppearance() {
   appearance.profileImageUrl = "";
   appearance.backgroundImageUrl = "";
-  appearance.backgroundColor = "#0b201b";
-  appearance.buttonColor = "#75d9a0";
-  appearance.profileFontColor = "#dff4e7";
-  appearance.buttonFontColor = "#0b201b";
+  appearance.backgroundColor = defaultAppearance.backgroundColor;
+  appearance.buttonColor = defaultAppearance.buttonColor;
+  appearance.profileFontColor = defaultAppearance.profileFontColor;
+  appearance.buttonFontColor = defaultAppearance.buttonFontColor;
   saveAll();
   applyAppearance();
   openDesignModal();
@@ -625,16 +663,50 @@ function openProfileModal() {
   elements.profileUsernameInput.value = profile.username || "";
   elements.profileMetaInput.value = profile.bio;
   elements.profileModal.classList.add("is-open");
+  elements.profileModal.setAttribute("aria-hidden", "false");
 }
 
 function closeProfileModal() {
   elements.profileModal.classList.remove("is-open");
+  elements.profileModal.setAttribute("aria-hidden", "true");
+}
+
+async function downloadPreviewImage() {
+  const phone = document.querySelector(".phone");
+  if (!phone || typeof html2canvas !== "function") return;
+  const btn = elements.downloadPreviewBtn;
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add("is-loading");
+  }
+  try {
+    const canvas = await html2canvas(phone, {
+      backgroundColor: null,
+      useCORS: true,
+      scale: 2,
+    });
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "wemint-preview.png";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove("is-loading");
+    }
+  }
 }
 
 function initEvents() {
   elements.addLinkBtn.addEventListener("click", () => openModal());
   if (elements.topbarAddBtn) {
-    elements.topbarAddBtn.addEventListener("click", () => openModal());
+    elements.topbarAddBtn.addEventListener("click", openProfileModal);
+  }
+  if (elements.downloadPreviewBtn) {
+    elements.downloadPreviewBtn.addEventListener("click", downloadPreviewImage);
   }
   if (elements.sidebarAddBtn) {
     elements.sidebarAddBtn.addEventListener("click", () => openModal());
@@ -842,6 +914,12 @@ function initBannerCycle() {
 }
 
 function init() {
+  if (FORCE_PROFILE_MOCK) {
+    storage.set("wemint_profile", defaultProfile);
+  }
+  if (FORCE_APPEARANCE_MOCK) {
+    storage.set("wemint_appearance", defaultAppearance);
+  }
   renderProfile();
   renderLinks();
   renderPreview();
@@ -850,6 +928,9 @@ function init() {
   applyAppearance();
   initNavAccordion();
   initBannerCycle();
+  if (FORCE_PROFILE_MOCK) {
+    openProfileModal();
+  }
 }
 
 init();

@@ -5,8 +5,8 @@ This repository contains the static front-end pages for `wemint.link`, a payment
 ## What this repo is
 - Static HTML/CSS/JS pages (no build step required).
 - Primary screens:
-  - `checkout.html` — Payment Link Generator UI (form + live preview).
-  - `main/main.html` — Marketing home page with dot background theme.
+- `checkout/checkout.html` — Payment Link Generator UI (form + live preview).
+- `globe/main.html` — Marketing home page with dot background theme.
 
 ## Design direction
 - Clean, light UI with a subtle dot background.
@@ -17,7 +17,7 @@ This repository contains the static front-end pages for `wemint.link`, a payment
 - Shared images/icons in `asset/` (favicons, phone mockups, QR, profile).
 
 ## Run locally
-- Open `checkout.html` or `main/main.html` in a browser.
+- Open `checkout/checkout.html` or `globe/main.html` in a browser.
   - Example: double-click the file or serve with any simple static server.
 
 ## Editing notes
