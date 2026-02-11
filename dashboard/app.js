@@ -15,7 +15,7 @@ const storage = {
 const defaultProfile = {
   name: "Kwanchanal Grographic",
   username: "kwan",
-  bio: "Retired designer turn FinTech Product Manager, Mostly underwater",
+  bio: "Retired designer turned FinTech Product Manager, Mostly underwater",
 };
 
 const defaultLinks = [
@@ -673,25 +673,40 @@ function closeProfileModal() {
 
 async function downloadPreviewImage() {
   const phone = document.querySelector(".phone");
-  if (!phone || typeof html2canvas !== "function") return;
+  if (!phone) return;
+  if (typeof html2canvas !== "function") {
+    alert("Download not ready. Please refresh the page and try again.");
+    return;
+  }
   const btn = elements.downloadPreviewBtn;
   if (btn) {
     btn.disabled = true;
     btn.classList.add("is-loading");
   }
   try {
+    const bgColor = appearance.backgroundColor || "#ffffff";
     const canvas = await html2canvas(phone, {
-      backgroundColor: null,
+      backgroundColor: bgColor,
       useCORS: true,
       scale: 2,
     });
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = "wemint-preview.png";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    await new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          resolve();
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "wemint-preview.png";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        resolve();
+      }, "image/png");
+    });
   } finally {
     if (btn) {
       btn.disabled = false;

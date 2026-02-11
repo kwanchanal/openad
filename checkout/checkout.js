@@ -31,8 +31,8 @@ const defaultName = 'Kwanchanal Geographic';
 const defaultDetail = 'Scuba Diving School and Recreation\nlocated in Koh Tao, Thailand';
 const defaultMessage = "It's Kwan! Thank You For Support 🙏🏻";
 const defaultWallet = '0x0df214be853caE6f646c9929EAfF857cb3452EFd';
-const defaultAvatar = 'asset/phone-profile.png';
-const defaultQr = 'asset/phone-qr.png';
+const defaultAvatar = '../asset/phone-profile.png';
+const defaultQr = '../asset/phone-qr.png';
 const bioWrap = 35;
 const cropTargets = {
   avatar: { img: previewAvatar, fallback: defaultAvatar, size: 256 },
