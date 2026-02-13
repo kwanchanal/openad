@@ -71,42 +71,67 @@ function initFlashCard() {
   ];
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const touchLike = window.matchMedia("(hover: none), (pointer: coarse)");
   let index = 0;
   let isSwitching = false;
+  let ready = false;
+  let loopTimer = null;
+
+  const sources = files.map((file) => encodeURI(`flash/${file}`));
+
+  const preloadImage = (src) =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.src = src;
+
+      const done = () => resolve();
+      if (img.decode) {
+        img.decode().then(done).catch(done);
+      } else {
+        img.onload = done;
+        img.onerror = done;
+      }
+    });
 
   const setImage = (nextIndex) => {
-    const nextSrc = encodeURI(`flash/${files[nextIndex]}`);
-    image.src = nextSrc;
+    image.src = sources[nextIndex];
   };
 
   const advance = () => {
-    if (isSwitching) return;
+    if (isSwitching || !ready) return;
     isSwitching = true;
-    index = (index + 1) % files.length;
+    index = (index + 1) % sources.length;
+    const disableFade = reduceMotion.matches || touchLike.matches;
 
-    if (reduceMotion.matches) {
+    if (disableFade) {
       setImage(index);
       isSwitching = false;
+      scheduleNext();
       return;
     }
 
     image.classList.add("is-fading");
     setTimeout(() => {
       setImage(index);
-      if (image.complete) {
+      requestAnimationFrame(() => {
         image.classList.remove("is-fading");
         isSwitching = false;
-      } else {
-        image.onload = () => {
-          image.classList.remove("is-fading");
-          isSwitching = false;
-        };
-      }
+        scheduleNext();
+      });
     }, 300);
   };
 
-  setImage(index);
-  setInterval(advance, 2800);
+  const scheduleNext = () => {
+    clearTimeout(loopTimer);
+    const interval = touchLike.matches ? 3400 : 2800;
+    loopTimer = setTimeout(advance, interval);
+  };
+
+  Promise.all(sources.map(preloadImage)).then(() => {
+    ready = true;
+    setImage(index);
+    scheduleNext();
+  });
 }
 
 function initFlashOverlayTyping(onFirstPhraseComplete) {
