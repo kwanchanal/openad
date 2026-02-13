@@ -197,22 +197,60 @@ function initFlashTagCloud() {
   }
 
   const labels = [
-    "Booking Trip",
-    "Reserve",
-    "Request Payment",
-    "Donate",
-    "Get Initery",
-    "Hire",
-    "Get Quotation",
+    "Book Now",
+    "Start Chat",
+    "Contact Us",
+    "Pay Deposit",
+    "Get Invoice",
+    "Request Callback",
+    "Claim Offer",
+    "Join Waitlist",
+    "Schedule Call",
+    "Send Inquiry",
+    "Buy Ticket",
+    "Place Order",
+    "Tip Creator",
+    "Start Now",
+    "Talk to Us",
+    "Send Message",
+    "Book a Slot",
+    "Confirm Booking",
+    "Reserve Seat",
+    "Pay Now",
+    "Get Support",
+    "Ask a Question",
+    "Join Now",
+    "Sign Me Up",
+    "Unlock Offer",
+    "Claim Discount",
+    "View Packages",
+    "See Pricing",
+    "Buy Now",
+    "Checkout",
   ];
   const directions = ["from-left", "from-right", "from-top", "from-bottom"];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let active = false;
+  let occupiedRects = [];
 
   const randomDirection = () => directions[Math.floor(Math.random() * directions.length)];
 
   const clearCloud = () => {
     cloud.innerHTML = "";
+    occupiedRects = [];
+  };
+
+  const intersects = (a, b, gap) => {
+    return !(
+      a.left + a.width + gap <= b.left ||
+      b.left + b.width + gap <= a.left ||
+      a.top + a.height + gap <= b.top ||
+      b.top + b.height + gap <= a.top
+    );
+  };
+
+  const hasCollision = (rect, gap) => {
+    return occupiedRects.some((item) => intersects(rect, item, gap));
   };
 
   const placeTag = (tag) => {
@@ -220,21 +258,61 @@ function initFlashTagCloud() {
     const areaHeight = cloud.clientHeight;
     const safeX = 12;
     const safeY = 12;
+    const gap = 10;
     const tagWidth = tag.offsetWidth;
     const tagHeight = tag.offsetHeight;
 
     const maxLeft = Math.max(safeX, areaWidth - tagWidth - safeX);
     const maxTop = Math.max(safeY, areaHeight - tagHeight - safeY);
-    const left = safeX + Math.random() * Math.max(0, maxLeft - safeX);
-    const top = safeY + Math.random() * Math.max(0, maxTop - safeY);
+    const leftRange = Math.max(0, maxLeft - safeX);
+    const topRange = Math.max(0, maxTop - safeY);
 
-    tag.style.left = `${left}px`;
-    tag.style.top = `${top}px`;
+    let chosen = null;
+
+    for (let i = 0; i < 50; i += 1) {
+      const left = safeX + Math.random() * leftRange;
+      const top = safeY + Math.random() * topRange;
+      const candidate = { left, top, width: tagWidth, height: tagHeight };
+      if (!hasCollision(candidate, gap)) {
+        chosen = candidate;
+        break;
+      }
+    }
+
+    if (!chosen) {
+      const step = Math.max(12, Math.round(Math.min(tagWidth, tagHeight) * 0.36));
+      for (let top = safeY; top <= maxTop; top += step) {
+        for (let left = safeX; left <= maxLeft; left += step) {
+          const candidate = { left, top, width: tagWidth, height: tagHeight };
+          if (!hasCollision(candidate, gap)) {
+            chosen = candidate;
+            break;
+          }
+        }
+        if (chosen) break;
+      }
+    }
+
+    if (!chosen) {
+      chosen = {
+        left: safeX + Math.random() * leftRange,
+        top: safeY + Math.random() * topRange,
+        width: tagWidth,
+        height: tagHeight,
+      };
+    }
+
+    occupiedRects.push(chosen);
+    tag.style.left = `${chosen.left}px`;
+    tag.style.top = `${chosen.top}px`;
   };
 
-  const createTag = (label) => {
+  const createTag = (label, sequence) => {
     const tag = document.createElement("span");
     tag.className = `flash-card__tag ${randomDirection()}`;
+    if (sequence === 1 || sequence % 3 === 0) {
+      tag.classList.add("flash-card__tag--imessage");
+    }
     tag.textContent = label;
     cloud.appendChild(tag);
     placeTag(tag);
@@ -248,7 +326,7 @@ function initFlashTagCloud() {
     clearCloud();
 
     labels.forEach((label, index) => {
-      setTimeout(() => createTag(label), index * 230);
+      setTimeout(() => createTag(label, index + 1), index * 230);
     });
 
     const revealDuration = labels.length * 230 + 1200;
@@ -270,7 +348,7 @@ function initFlashTagCloud() {
     active = true;
 
     if (reduceMotion.matches) {
-      labels.forEach((label) => createTag(label));
+      labels.forEach((label, index) => createTag(label, index + 1));
       return;
     }
 

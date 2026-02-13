@@ -811,6 +811,24 @@ main {
   transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.2, 0.72, 0.18, 1.05);
 }
 
+.flash-card__tag--imessage {
+  background: #d7d7dd;
+  color: #111218;
+  border: 1px solid #d7d7dd;
+  box-shadow: 0 4px 10px hsl(0 0% 0% / 0.12);
+}
+
+.flash-card__tag--imessage::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  bottom: -7px;
+  width: 16px;
+  height: 12px;
+  background: #d7d7dd;
+  clip-path: polygon(0 0, 100% 0, 40% 100%);
+}
+
 .flash-card__tag.is-visible {
   opacity: 1;
   transform: translate(0, 0) scale(1);
