@@ -764,7 +764,8 @@ main {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  width: min(92%, 640px);
+  width: fit-content;
+  max-width: calc(100% - 24px);
   border: 1px solid hsl(0 0% 10%);
   background: linear-gradient(180deg, hsl(0 0% 20%) 0%, hsl(0 0% 6%) 100%);
   color: #fff;
@@ -1041,7 +1042,8 @@ body.is-ready section {
   }
 
   .flash-card__overlay-btn {
-    width: min(90%, 320px);
+    width: fit-content;
+    max-width: calc(100% - 20px);
     min-height: 42px;
     font-size: clamp(0.92rem, 4vw, 1.15rem);
     padding: 8px 16px;
