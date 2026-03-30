@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>minting...</title>
+    <link rel="icon" type="image/png" href="../logo.png" />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --env-bg:     #ede3d4;
+        --env-border: #c8b49a;
+        --env-shade:  #d9cbb8;
+        --paper-bg:   #fffef9;
+        --ink:        #261e14;
+        --ink-muted:  #7a6855;
+        --accent:     #8c6e4b;
+        --btn-bg:     #261e14;
+        --btn-text:   #fffef9;
+        --stage-bg:   #e4d9cb;
+      }
+
+      body {
+        min-height: 100vh;
+        background: var(--stage-bg);
+        font-family: 'Lora', Georgia, serif;
+        overflow: hidden;
+      }
+
+      /* ─── Envelope stage ──────────────────────────────────────── */
+
+      #envStage {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: var(--stage-bg);
+        z-index: 50;
+        transition: opacity 0.55s ease 0.1s;
+      }
+      #envStage.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* perspective wrapper */
+      #envWrap {
+        position: relative;
+        width: 300px;
+        height: 200px;
+        perspective: 600px;
+        perspective-origin: 50% 0%;
+      }
+
+      /* envelope body */
+      #envBody {
+        position: absolute;
+        inset: 0;
+        background: var(--env-bg);
+        border: 1.5px solid var(--env-border);
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow:
+          0 12px 40px rgba(0,0,0,0.14),
+          0  3px 10px rgba(0,0,0,0.08);
+      }
+
+      /* bottom-left and bottom-right fold lines */
+      #envBody::before,
+      #envBody::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        height: 1px;
+        background: var(--env-border);
+        opacity: 0.55;
+        width: 53%;
+      }
+      #envBody::before {
+        left: 0;
+        transform-origin: bottom left;
+        transform: rotate(-36deg) translateY(-1px);
+      }
+      #envBody::after {
+        right: 0;
+        transform-origin: bottom right;
+        transform: rotate(36deg) translateY(-1px);
+      }
+
+      /* letter peeking out from inside */
+      #letterPeek {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%) translateY(100%);
+        width: 78%;
+        height: 160px;
+        background: var(--paper-bg);
+        border: 1px solid #e2d8c8;
+        border-bottom: none;
+        border-radius: 3px 3px 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 20px;
+        transition: transform 0.72s cubic-bezier(0.34, 1.4, 0.64, 1) 0s;
+      }
+      #letterPeek.reveal {
+        transform: translateX(-50%) translateY(-22px);
+      }
+      .peek-line {
+        width: 80%;
+        height: 1px;
+        background: #d5c9b8;
+        border-radius: 2px;
+      }
+      .peek-line:nth-child(1) { width: 45%; background: #bfb09a; }
+      .peek-line:nth-child(3) { width: 65%; }
+
+      /* envelope flap (triangle, rotates open) */
+      #envFlap {
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: calc(100% + 2px);
+        height: 128px;
+        z-index: 10;
+        transform-origin: top center;
+        transform-style: preserve-3d;
+        transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+        pointer-events: none;
+      }
+      #envFlap.open {
+        transform: rotateX(-165deg);
+      }
+
+      /* front face of flap */
+      #envFlapFront {
+        position: absolute;
+        inset: 0;
+        background: var(--env-shade);
+        clip-path: polygon(0 0, 100% 0, 50% 78%);
+        border-left: 1.5px solid var(--env-border);
+        border-right: 1.5px solid var(--env-border);
+        backface-visibility: hidden;
+      }
+
+      /* back face (underside of flap, shown when open) */
+      #envFlapBack {
+        position: absolute;
+        inset: 0;
+        background: color-mix(in srgb, var(--env-bg) 80%, #b89870 20%);
+        clip-path: polygon(0 0, 100% 0, 50% 78%);
+        transform: rotateX(180deg);
+        backface-visibility: hidden;
+      }
+
+      /* ─── Letter page ─────────────────────────────────────────── */
+
+      #letterPage {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: start center;
+        background: var(--stage-bg);
+        padding: 32px 20px 40px;
+        overflow-y: auto;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.6s ease;
+      }
+      #letterPage.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* paper card */
+      #letterCard {
+        background: var(--paper-bg);
+        border: 1px solid #e0d4c0;
+        border-radius: 6px;
+        width: 100%;
+        max-width: 375px;
+        padding: 40px 34px 32px;
+        box-shadow:
+          0 16px 56px rgba(0,0,0,0.11),
+          0  2px  8px rgba(0,0,0,0.06);
+        transform: translateY(20px);
+        transition: transform 0.65s cubic-bezier(0.34, 1.2, 0.64, 1) 0.1s;
+      }
+      #letterPage.show #letterCard {
+        transform: translateY(0);
+      }
+
+      /* postmark / stamp decoration */
+      .postmark {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 24px;
+      }
+      .stamp {
+        width: 44px;
+        height: 54px;
+        border: 2px solid var(--env-border);
+        border-radius: 3px;
+        display: grid;
+        place-items: center;
+        background: var(--stage-bg);
+        position: relative;
+      }
+      .stamp::before {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        border: 1px dashed var(--env-border);
+        border-radius: 2px;
+        opacity: 0.6;
+      }
+      .stamp-inner {
+        font-family: 'Playfair Display', serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent);
+        position: relative;
+        z-index: 1;
+      }
+
+      /* avatar */
+      .letter-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: grid;
+        place-items: center;
+        margin: 0 auto 14px;
+        overflow: hidden;
+        border: 2px solid var(--env-border);
+      }
+      .letter-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .letter-avatar-initials {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .letter-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--ink);
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      .letter-bio {
+        font-size: 13px;
+        color: var(--ink-muted);
+        text-align: center;
+        line-height: 1.55;
+        margin-bottom: 26px;
+      }
+
+      /* divider */
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 22px;
+      }
+      .divider::before,
+      .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--env-border);
+        opacity: 0.45;
+      }
+      .divider-ornament {
+        color: var(--accent);
+        font-size: 13px;
+        opacity: 0.7;
+        letter-spacing: 4px;
+      }
+
+      /* message body */
+      .letter-greeting {
+        font-size: 14.5px;
+        color: var(--ink-muted);
+        margin-bottom: 10px;
+      }
+      .letter-message {
+        font-size: 15px;
+        line-height: 1.8;
+        color: var(--ink);
+        font-style: italic;
+        white-space: pre-wrap;
+        margin-bottom: 18px;
+      }
+      .letter-signature {
+        font-size: 14px;
+        color: var(--ink-muted);
+        margin-bottom: 30px;
+      }
+
+      /* buttons */
+      .letter-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .letter-btn {
+        display: block;
+        width: 100%;
+        padding: 13px 18px;
+        border-radius: 8px;
+        font-family: 'Lora', serif;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: opacity 0.15s, transform 0.12s;
+        border: none;
+      }
+      .letter-btn:hover {
+        opacity: 0.82;
+        transform: translateY(-1px);
+      }
+      .letter-btn.primary {
+        background: var(--btn-bg);
+        color: var(--btn-text);
+      }
+      .letter-btn.ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1.5px solid var(--env-border);
+      }
+
+      /* footer */
+      .letter-footer {
+        text-align: center;
+        font-size: 10.5px;
+        color: var(--ink-muted);
+        opacity: 0.55;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── Envelope animation ─────────────────────────────────── -->
+    <div id="envStage">
+      <div id="envWrap">
+        <div id="envBody">
+          <div id="letterPeek">
+            <div class="peek-line"></div>
+            <div class="peek-line"></div>
+            <div class="peek-line"></div>
+            <div class="peek-line"></div>
+          </div>
+        </div>
+        <div id="envFlap">
+          <div id="envFlapFront"></div>
+          <div id="envFlapBack"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Letter content ─────────────────────────────────────── -->
+    <div id="letterPage">
+      <div id="letterCard">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <script>
+      // ─── CONFIG ────────────────────────────────────────────────────────────
+      // Edit this object to customise the letter page.
+
+      const config = {
+        profile: {
+          name: "Sofia Marin",
+          bio: "Florist & slow-living advocate · Based in Lisbon",
+          avatarInitials: "SM",
+          avatarImage: "",          // set to image URL to use a photo
+        },
+
+        letter: {
+          greeting: "Hello, lovely,",
+          message:
+            "Thank you for stopping by my little corner of the internet.\n\n" +
+            "I'd love to connect — whether it's about flowers, commissions, " +
+            "or just a gentle hello.",
+          signature: "With warmth, Sofia ✶",
+        },
+
+        // Add, remove, or reorder buttons freely.
+        // style: "primary" (filled) | "ghost" (outlined)
+        buttons: [
+          { label: "Book a Floral Arrangement", url: "#", style: "primary" },
+          { label: "Browse My Portfolio",        url: "#", style: "ghost"   },
+          { label: "Send Me a Message",          url: "#", style: "ghost"   },
+        ],
+
+        appearance: {
+          envBg:      "#ede3d4",
+          envBorder:  "#c8b49a",
+          envShade:   "#d9cbb8",
+          paperBg:    "#fffef9",
+          stageBg:    "#e4d9cb",
+          ink:        "#261e14",
+          inkMuted:   "#7a6855",
+          accent:     "#8c6e4b",
+          btnBg:      "#261e14",
+          btnText:    "#fffef9",
+        },
+      };
+
+      // ─── END CONFIG ────────────────────────────────────────────────────────
+
+      // Apply colour vars
+      (function applyVars() {
+        const r = document.documentElement.style;
+        const a = config.appearance;
+        r.setProperty("--env-bg",     a.envBg);
+        r.setProperty("--env-border", a.envBorder);
+        r.setProperty("--env-shade",  a.envShade);
+        r.setProperty("--paper-bg",   a.paperBg);
+        r.setProperty("--stage-bg",   a.stageBg);
+        r.setProperty("--ink",        a.ink);
+        r.setProperty("--ink-muted",  a.inkMuted);
+        r.setProperty("--accent",     a.accent);
+        r.setProperty("--btn-bg",     a.btnBg);
+        r.setProperty("--btn-text",   a.btnText);
+      })();
+
+      // Render letter card content
+      function renderCard() {
+        const { profile, letter, buttons } = config;
+
+        const avatarHTML = profile.avatarImage
+          ? `<img src="${profile.avatarImage}" alt="${profile.name}" />`
+          : `<span class="letter-avatar-initials">${
+              profile.avatarInitials ||
+              profile.name.trim().slice(0, 2).toUpperCase()
+            }</span>`;
+
+        const buttonsHTML = buttons
+          .map(
+            (b) =>
+              `<a class="letter-btn ${b.style}" href="${b.url}">${b.label}</a>`
+          )
+          .join("");
+
+        const slug = profile.name.trim().replace(/\s+/g, "-").toUpperCase();
+
+        document.getElementById("letterCard").innerHTML = `
+          <div class="postmark">
+            <div class="stamp"><span class="stamp-inner">W</span></div>
+          </div>
+          <div class="letter-avatar">${avatarHTML}</div>
+          <div class="letter-name">${profile.name}</div>
+          <div class="letter-bio">${profile.bio}</div>
+          <div class="divider"><span class="divider-ornament">✦ ✦ ✦</span></div>
+          <p class="letter-greeting">${letter.greeting}</p>
+          <p class="letter-message">${letter.message}</p>
+          <p class="letter-signature">${letter.signature}</p>
+          <div class="letter-buttons">${buttonsHTML}</div>
+          <div class="letter-footer">WEMINT.LINK/${slug} &nbsp;·&nbsp; &gt;_ MAKE YOURS</div>
+        `;
+      }
+
+      // Animation sequence
+      function runAnimation() {
+        const flap  = document.getElementById("envFlap");
+        const peek  = document.getElementById("letterPeek");
+        const stage = document.getElementById("envStage");
+        const page  = document.getElementById("letterPage");
+
+        // 1. Open flap
+        setTimeout(() => flap.classList.add("open"), 550);
+
+        // 2. Letter peeks out
+        setTimeout(() => peek.classList.add("reveal"), 1150);
+
+        // 3. Transition to letter page
+        setTimeout(() => {
+          stage.classList.add("hide");
+          page.classList.add("show");
+          document.body.style.overflowY = "auto";
+        }, 2100);
+      }
+
+      renderCard();
+      runAnimation();
+    </script>
+  </body>
+</html>
