@@ -2227,11 +2227,17 @@ function initEvents() {
     closeSocialModal();
   });
 
-  elements.openDesignBtn.addEventListener("click", openDesignModal);
-  elements.closeDesignBtn.addEventListener("click", closeDesignModal);
-  elements.designModal.addEventListener("click", (event) => {
-    if (event.target === elements.designModal) closeDesignModal();
-  });
+  if (elements.openDesignBtn) {
+    elements.openDesignBtn.addEventListener("click", openDesignModal);
+  }
+  if (elements.closeDesignBtn) {
+    elements.closeDesignBtn.addEventListener("click", closeDesignModal);
+  }
+  if (elements.designModal) {
+    elements.designModal.addEventListener("click", (event) => {
+      if (event.target === elements.designModal) closeDesignModal();
+    });
+  }
   elements.cropModal.addEventListener("click", (event) => {
     if (event.target === elements.cropModal) closeCropModal();
   });
