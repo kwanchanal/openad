@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>minting...</title>
-    <link rel="icon" type="image/png" href="../logo.png" />
+    <title>OpenAd</title>
+    <link rel="icon" type="image/png" href="favicon/logo.png" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200"
@@ -18,11 +18,13 @@
   </head>
   <body class="dashboard">
     <div class="top-banner">
-      <span class="banner-text">Bespoke Design for Brand - Contact Us</span>
+      <span class="banner-text" id="bannerText">OpenAd — Post Anything</span>
     </div>
 
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
     <div class="app-shell discover-layout">
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <nav class="nav">
           <div class="nav-section">
             <a class="nav-link is-active" href="discover.html" aria-current="page">
@@ -30,7 +32,6 @@
               Discover
             </a>
           </div>
-
           <div class="nav-section">
             <button class="nav-title" type="button">Your Link</button>
             <div class="nav-items">
@@ -38,6 +39,10 @@
                 <span class="material-symbols-outlined nav-icon">badge</span>
                 Homepage
               </a>
+            </div>
+          </div>
+          <div class="nav-section">
+            <div class="nav-items">
               <button class="nav-link" type="button">
                 <span class="material-symbols-outlined nav-icon">palette</span>
                 Design
@@ -45,6 +50,7 @@
               <button class="nav-link" type="button">
                 <span class="material-symbols-outlined nav-icon">insights</span>
                 Insights
+                <span class="material-symbols-outlined lock-icon" aria-hidden="true">lock</span>
               </button>
               <button class="nav-link" type="button">
                 <span class="material-symbols-outlined nav-icon">chat</span>
@@ -52,25 +58,18 @@
               </button>
             </div>
           </div>
-
           <div class="nav-section">
             <button class="nav-title" type="button">Tools</button>
             <div class="nav-items">
               <button class="nav-link" type="button">
-                <span class="material-symbols-outlined nav-icon">group</span>
-                Add Affiliates
-              </button>
-              <button class="nav-link" type="button">
-                <span class="material-symbols-outlined nav-icon">payments</span>
-                Add Payment
-              </button>
-              <button class="nav-link" type="button">
                 <span class="material-symbols-outlined nav-icon">link</span>
                 Link Shortener
+                <span class="material-symbols-outlined lock-icon" aria-hidden="true">lock</span>
               </button>
               <button class="nav-link" type="button">
                 <span class="material-symbols-outlined nav-icon">travel_explore</span>
                 SEO
+                <span class="material-symbols-outlined lock-icon" aria-hidden="true">lock</span>
               </button>
             </div>
           </div>
@@ -79,7 +78,7 @@
         <section class="sidebar-signup">
           <p class="signup-title">Love it?</p>
           <button class="signup-pill" type="button">Sign Up</button>
-          <p class="signup-copy">to get your link, it’s free!</p>
+          <p class="signup-copy">to get your link, it's free!</p>
         </section>
 
         <div class="sidebar-footer">
@@ -96,7 +95,61 @@
         </div>
       </aside>
 
-      <main class="discover-main" aria-label="Discover workspace"></main>
+      <main class="main canvas-main" aria-label="Discover workspace">
+        <div class="canvas-area">
+          <div class="canvas-elements"></div>
+        </div>
+        <div class="canvas-toolbar">
+          <div class="canvas-toolbar-group">
+            <button class="canvas-tool-btn is-active" data-tool="select" title="Select">
+              <span class="material-symbols-outlined">near_me</span>
+            </button>
+            <button class="canvas-tool-btn" data-tool="hand" title="Hand">
+              <span class="material-symbols-outlined">pan_tool</span>
+            </button>
+          </div>
+          <div class="canvas-toolbar-divider"></div>
+          <div class="canvas-toolbar-group">
+            <button class="canvas-tool-btn" data-type="text" title="Text">
+              <span class="material-symbols-outlined">title</span>
+            </button>
+            <button class="canvas-tool-btn" data-type="box" title="Box">
+              <span class="material-symbols-outlined">check_box_outline_blank</span>
+            </button>
+            <button class="canvas-tool-btn" data-type="image" title="Image">
+              <span class="material-symbols-outlined">image</span>
+            </button>
+            <button class="canvas-tool-btn" data-type="link" title="Link">
+              <span class="material-symbols-outlined">link</span>
+            </button>
+            <button class="canvas-tool-btn" data-type="video" title="Video">
+              <span class="material-symbols-outlined">play_circle</span>
+            </button>
+          </div>
+          <div class="canvas-toolbar-divider"></div>
+          <div class="canvas-toolbar-group">
+            <button class="canvas-tool-btn" title="More">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+          </div>
+        </div>
+      </main>
     </div>
+
+    <script>
+      (function () {
+        const messages = ["OpenAd — Post Anything", "Open For Bespoke Design Service"];
+        const el = document.getElementById("bannerText");
+        let index = 0;
+        setInterval(() => {
+          el.style.animation = "banner-slide-up-out 0.4s ease forwards";
+          setTimeout(() => {
+            index = (index + 1) % messages.length;
+            el.textContent = messages[index];
+            el.style.animation = "banner-slide-up-in 0.4s ease forwards";
+          }, 420);
+        }, 2000);
+      })();
+    </script>
   </body>
 </html>

@@ -40,7 +40,7 @@ const defaultLinks = [
 ];
 const DEFAULT_PORTFOLIO_THUMBNAIL = "../mockup/featured-portfolio.png";
 
-const FORCE_PROFILE_MOCK = true;
+const FORCE_PROFILE_MOCK = false;
 const FORCE_APPEARANCE_MOCK = true;
 const profile = FORCE_PROFILE_MOCK ? { ...defaultProfile } : storage.get("wemint_profile", defaultProfile);
 const links = storage.get("wemint_links", defaultLinks);
@@ -371,12 +371,12 @@ function saveAll() {
 }
 
 function renderProfile() {
-  elements.profileName.textContent = profile.name;
-  elements.profileMeta.textContent = profile.bio;
-  elements.previewName.textContent = profile.name;
-  elements.previewBio.textContent = profile.bio;
-  elements.previewName.style.display = visibility.showDisplayName ? "" : "none";
-  elements.previewBio.style.display = visibility.showBio ? "" : "none";
+  if (elements.profileName) elements.profileName.textContent = profile.name;
+  if (elements.profileMeta) elements.profileMeta.textContent = profile.bio;
+  if (elements.previewName) elements.previewName.textContent = profile.name;
+  if (elements.previewBio) elements.previewBio.textContent = profile.bio;
+  if (elements.previewName) elements.previewName.style.display = visibility.showDisplayName ? "" : "none";
+  if (elements.previewBio) elements.previewBio.style.display = visibility.showBio ? "" : "none";
   if (elements.previewSocialIcons) {
     elements.previewSocialIcons.style.display = visibility.showSocialIcons ? "" : "none";
   }
@@ -384,8 +384,8 @@ function renderProfile() {
   const username = profile.username ? profile.username.trim() : "";
   if (elements.previewLinkbarUser) {
     elements.previewLinkbarUser.textContent = username
-      ? `wemint.link/${username}`
-      : "wemint.link/";
+      ? `openad.me/${username}`
+      : "openad.me/yours";
   }
 }
 
@@ -1491,6 +1491,7 @@ function applyCombinedOrder(order) {
 }
 
 function renderLinks() {
+  if (!elements.linksList) return;
   elements.linksList.innerHTML = "";
   if (elements.inboxTitle) {
     elements.inboxTitle.textContent = inboxName;
@@ -1795,9 +1796,9 @@ function renderPreview() {
 
   renderInboxBanner();
   renderPreviewInboxForm();
-  elements.previewCta.style.display = elements.footerSwitch.checked
-    ? "block"
-    : "none";
+  if (elements.previewCta) {
+    elements.previewCta.style.display = elements.footerSwitch && !elements.footerSwitch.checked ? "none" : "block";
+  }
 }
 
 function openModal(id = null) {
@@ -2211,7 +2212,7 @@ function initEvents() {
     elements.previewInboxSheetTitle.textContent = inboxName;
   }
 
-  elements.footerSwitch.addEventListener("change", () => {
+  if (elements.footerSwitch) elements.footerSwitch.addEventListener("change", () => {
     elements.footerSwitch.checked = true;
     if (elements.footerUpgradeTip) {
       elements.footerUpgradeTip.classList.add("is-visible");
@@ -2223,7 +2224,7 @@ function initEvents() {
     renderPreview();
   });
 
-  elements.editProfileBtn.addEventListener("click", openProfileModal);
+  if (elements.editProfileBtn) elements.editProfileBtn.addEventListener("click", openProfileModal);
   elements.closeProfileBtn.addEventListener("click", closeProfileModal);
   elements.profileModal.addEventListener("click", (event) => {
     if (event.target === elements.profileModal) closeProfileModal();
@@ -2271,30 +2272,7 @@ function initEvents() {
   elements.cropCancelBtn.addEventListener("click", closeCropModal);
   elements.cropSaveBtn.addEventListener("click", saveCrop);
 
-  if (elements.sidebarToggle && elements.sidebar && elements.sidebarOverlay) {
-    const closeSidebar = () => {
-      elements.sidebar.classList.remove("is-open");
-      elements.sidebarOverlay.classList.remove("is-visible");
-      elements.sidebarOverlay.setAttribute("aria-hidden", "true");
-    };
-
-    const openSidebar = () => {
-      elements.sidebar.classList.add("is-open");
-      elements.sidebarOverlay.classList.add("is-visible");
-      elements.sidebarOverlay.setAttribute("aria-hidden", "false");
-    };
-
-    elements.sidebarToggle.addEventListener("click", () => {
-      const isOpen = elements.sidebar.classList.contains("is-open");
-      if (isOpen) {
-        closeSidebar();
-      } else {
-        openSidebar();
-      }
-    });
-
-    elements.sidebarOverlay.addEventListener("click", closeSidebar);
-  }
+  // Sidebar is always visible — toggle disabled
 
   if (elements.showProfileImage) {
     elements.showProfileImage.addEventListener("change", () => {
@@ -2413,25 +2391,23 @@ function initNavAccordion() {
 }
 
 function initBannerCycle() {
-  if (!elements.bannerText) return;
   const messages = [
-    "Built For You",
-    "Bespoke Design for Brand - Contact Us",
-    "Your Brand in One-Page",
-    "Build For Global Economy",
+    "OpenAd — Post Anything",
+    "Open For Bespoke Design Service",
   ];
+  const el = elements.bannerText;
+  if (!el) return;
   let index = 0;
-  elements.bannerText.textContent = messages[index];
+  el.textContent = messages[0];
+  el.style.animation = "none";
   setInterval(() => {
-    elements.bannerText.style.opacity = "0";
-    elements.bannerText.style.transform = "translateY(-6px)";
+    el.style.animation = "banner-slide-up-out 0.4s ease forwards";
     setTimeout(() => {
       index = (index + 1) % messages.length;
-      elements.bannerText.textContent = messages[index];
-      elements.bannerText.style.opacity = "1";
-      elements.bannerText.style.transform = "translateY(0)";
-    }, 320);
-  }, 3500);
+      el.textContent = messages[index];
+      el.style.animation = "banner-slide-up-in 0.4s ease forwards";
+    }, 420);
+  }, 2000);
 }
 
 function init() {

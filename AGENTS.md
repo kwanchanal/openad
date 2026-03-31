@@ -1,171 +1,279 @@
-# AGENTS.md — wemint.link
-this repository contanins pages for 'wemint.link', a platform to create links that provide digital touchpoint for individuals and brands, no fancy digital design background needed.
+# AGENTS.md — openad.me(OpenAd)
 
-## Product Philosophy
-Most people don’t need a full website.
-They just need a simple page that works.
-
-Most people don’t know how to start one.
-wemint.link removes that friction completely.
-
-## Core product
-
-- `wemint.link` helps people create a landing link in minutes.
-- One shareable link to a simple page with profile, links, media, and contact entry points.
-- Built for individuals and small brands to create their first digital touchpoint quickly.
-- Manage inbound interest and basic analytics in one place.
-
-## Each page includes:
-- Basic identity (name, image, short description)
-- Key links or services
-- Clear call-to-action (CTA)
-
-## In this repo
-- Static HTML/CSS/JS pages (no build step required).
-- Primary screens:
-  - `dashboard/dashboard.html` — dashboard including personal preview
-  - `dashboard/discover.html` — pre-built design themes to give you some idea
-
-### Inbox (Core)
-- Visitors can contact directly from the page
-- No login required
-- Works as a simple inquiry tool
-
-### Live Preview
-- Mobile-first preview
-- Reflects real user experience
-
-## Design Direction
-- Clean, light UI with a subtle dot background. Referenced from 
-
-## Assets
-- Shared images/icons in `asset/` (favicons, phone mockups, QR, profile).
-- Dashboard-specific assets live in `dashboard/image/`, `dashboard/favicon/`, `dashboard/social-icons/`.
-
-## Run locally
-- Open `globe/globe.html` or `dashboard/dashboard.html` in a browser.
-  - Example: double-click the file or serve with any simple static server.
-
-## Editing Notes
-- Keep HTML semantic and accessible (labels, headings, button text).
-- Prefer simple, readable CSS; avoid heavy dependencies.
-- Maintain the dot background to align with the existing brand feel.
-- Dashboard features to preserve:
-  - Drag-and-drop reordering of links with inbox section included.
-  - Inbox layout choices (Classic inline link, Banner bottom bar).
-  - Preview phone with bottom-sheet form for Inbox.
-  - Edit profile modal with visibility toggles (profile image, name, bio, social icons).
-  - Social icons + WEMINT.LINK/YOU/>_MAKE YOURS footer group pinned to the bottom of the preview.
+This repository contains product description, frontend, product logic, for **openad.me**, an open canvas platform where anyone can post anything on a personal board.
 
 ---
 
-## Repo structure
+## 🧠 Product Philosophy
+> “post anything”
+**openad is a open canvas**
+
+A place where:
+* users can freely express on his/her own canvas
+* drop anything (text, image, link, video, product)
+* write notes
+
+The system is intentionally:
+
+* unstructured
+* visual-first
+* spatial (not list-based)
+
+---
+
+## 🎯 Core Concept
+### Open Canvas
+
+Each user owns a **board (canvas)**:
+* freeform layout
+* drag & drop elements
+* no strict structure
+
+### Open Board (The Explore - Feature)
+
+A global shared space:
+* contains boards from all users
+* displayed in a canvas-like environment
+* encourages discovery
+
+---
+
+## 🧩 Core Features
+### 1. Explore (Public Board)
+
+* Default landing menu experience
+* Shows multiple user boards in a shared canvas
+* Infinite / scrollable / pannable space (future)
+* Content is PUBLIC by default
+
+#### Rules:
+
+* All boards are public unless user upgrades
+* No heavy algorithm initially (random / latest)
+
+---
+
+### 2. Your Canvas (User's Board)
+
+Each user has:
+* sharable unique URL: `openad.me/{username}`
+* editable personal canvas
+
+#### Capabilities:
+
+* Add elements:
+  * Text
+  * Image
+  * Link 
+  * Video (embed)
+  * Box (button with link)
+* Drag & drop positioning
+* Resize elements
+* Layering (z-index)
+
+* Auto-Preview
+
+#### UX Principles:
+
+* Freeform but not messy
+* Soft snap alignment (optional grid)
+* Instant visual feedback
+
+
+### 2.5. Board Preview
+* Right-side preview panel 
+* Mobile-style preview 
+* Reflects real user board
+
+---
+
+### 3. Go to canvas
+
+* User can visit his/her canvas via unique url
+
+---
+
+## 🖥️ Interface Structure
+
+### Layout (OpenAd Dashboard = index.html )
+
+#### Left Sidebar
+
+* Discover (Explore)
+* Your Link:
+  * Homepage
+  * Insights
+
+#### Tools
+
+* Link Shortener (future)
+
+---
+
+### Main Canvas Area
+
+* Primary working space
+* White/neutral background
+* Rounded container
+
+---
+
+### Right Panel (Preview)
+
+* Mobile-style preview
+* Real-time reflection of board
+* Shows:
+
+  * profile
+  * content cards
+  * CTA
+
+---
+
+## 🎨 Design System
+
+### Visual Direction
+
+* Clean SaaS dashboard
+* Minimal but soft
+* High whitespace
+
+### Typography
+
+* Sans-serif (modern, clean)
+* Similar to:
+  * Inter / system UI fonts
+
+---
+
+### Components
+
+* Buttons: similar to **shadcn/ui**
+* Cards: rounded, subtle shadow
+* Toggle: minimal, modern
+
+---
+
+### Icons
+
+* Use **Google Material Icons**
+
+---
+
+### Color
+
+* Neutral base (white / gray)
+* Accent: black / dark CTA
+* Avoid overly colorful UI (content should stand out)
+
+---
+
+## 🧠 Interaction Model
+
+### Drag & Drop
+
+* Core interaction
+* Elements must be:
+
+  * draggable
+  * resizable
+  * editable inline
+
+---
+
+### Element System
+
+Each element has:
 
 ```
-wemintlink/
-├── index.html / index.css / index.js    # Public landing page
-├── dashboard/                           # Main dashboard app
-│   ├── dashboard.html                   # Editor with live phone preview
-│   ├── discover.html                    # Theme gallery
-│   ├── app.js                           # Core dashboard logic (~2,457 lines)
-│   ├── styles.css                       # Dashboard styles (~3,073 lines)
-│   ├── image/                           # Dashboard UI images and phone frames
-│   ├── favicon/                         # Dashboard favicons
-│   └── social-icons/                    # Social media SVG icons
-├── globe/                               # Standalone pixel globe demo
-├── theme/                               # Portfolio theme previews (01–05, kwan)
-│   └── *-assets/                        # Bundled SVGs per theme
-├── asset/                               # Shared global assets (favicons, mockups, profiles)
-├── flash/                               # Flash card carousel images
-├── mockup/                              # Marketing images and banners
-└── postit/                              # Desktop-only warning image
+{
+  id,
+  type: "text" | "image" | "link" | "video" | "box",
+  position: { x, y },
+  size: { w, h },
+  content: {},
+  style: {}
+}
 ```
 
 ---
 
-## Pages
+### Rendering
 
-| File | Purpose |
-|------|---------|
-| `index.html` | Public landing page: hero, orbit avatars, flash card carousel, feature cards, pricing, CTA |
-| `dashboard/dashboard.html` | Core dashboard: link editor, live phone preview, profile/inbox/appearance editors |
-| `dashboard/discover.html` | Theme gallery: browse all available portfolio themes |
-| `globe/globe.html` | Standalone animated pixel globe (canvas-based, decorative) |
-| `theme/01.html` – `theme/05.html` | Standalone themed portfolio previews with bundled SVG assets |
-| `theme/kwan.html` | Kwan's personal portfolio theme |
+* Absolute positioning inside canvas
+* Responsive fallback (stacking on mobile if needed)
 
 ---
 
-## Feature spec
+## 🔗 URL Structure
 
-### Dashboard — Link management
-- Add, edit, delete links with label, URL, and icon
-- Drag-and-drop reorder — inbox section moves with its position in the list
-- Visibility toggle per link
-
-### Dashboard — Profile editor
-- Avatar upload with image cropping (Cropper.js)
-- Name, bio, social icon links
-- Per-field visibility toggles (profile image / name / bio / social icons)
-
-### Dashboard — Appearance editor
-- Theme picker that loads bundled SVG assets from `theme/*-assets/`
-- Background color, button style/color, font color via color picker
-- Live preview syncs instantly — no save button needed
-
-### Dashboard — Inbox configuration
-- Field picker modal: add/remove/reorder form fields (name, email, phone, message, etc.)
-- Layout choice: **Classic inline link** (shows link in page) or **Banner bottom bar** (sticky CTA bar)
-- Visitors submit without login; no backend — submissions handled externally
-
-### Dashboard — Banner manager
-- Carousel of promotional items
-- Each banner: image, title, price, link
-- Add / remove / reorder
-
-### Dashboard — Live phone preview
-- iPhone mockup frame rendered via `dashboard/image/frame/` PNGs
-- All editor inputs sync to preview in real-time
-- Mobile-first — reflects real visitor experience
-
-### Landing page — `index.html`
-- Orbit avatar animation around a globe
-- Flash card image carousel (6 images, auto-rotate every ~3s)
-- Typing effects ("YOU", contact section)
-- Scroll-reveal via IntersectionObserver
-- Responsive mobile nav
+* Home: `/`
+* Explore: `/explore`
+* User board: `/{username}`
 
 ---
 
-## Architecture
+## ⚙️ Future Expansion
 
-### State management
-`app.js` manages all state through `localStorage`. No backend, no API calls.
-
-| Key area | What's stored |
-|----------|--------------|
-| Profile | name, bio, avatar, social links, per-field visibility |
-| Links | ordered array: label, URL, icon, visibility |
-| Appearance | theme ID, background color, button style/color, font color |
-| Inbox | field definitions, layout choice |
-| Banners | ordered array: image, title, price, link |
-
-### Theme system
-Each theme in `theme/` has a matching `*-assets/` folder with SVG components. Dashboard loads these dynamically by theme ID. Each theme also has a standalone `theme/0N.html` for direct preview.
-
-### No build tooling
-External libraries via CDN only — no npm, no webpack, no framework:
-- **Cropper.js** — image cropping
-- **html2canvas** — screenshot/export
-- **tweakcn live-preview** — theme preview utility
-- **Google Material Symbols** — icons
+* Collaboration (multi-user board)
+* Public drop zone (shared canvas)
+* Monetization blocks (sell directly)
+* NFT / wallet integration
+* Spatial search (zoomable world)
 
 ---
 
-## CSS system
+## ⚠️ Product Constraints
 
-- `dashboard/styles.css` uses CSS custom properties throughout:
-  `--background`, `--foreground`, `--primary`, `--accent`, `--radius`
-- `index.css` handles landing page only — do not mix scopes
-- New dashboard UI should use existing custom properties, not hardcoded values
+* Do NOT turn this into a list-based product
+* Do NOT over-structure layouts
+* Do NOT prioritize monetization over expression (early stage)
 
+---
+
+## 🧭 North Star
+
+> A place where anyone can open a page and instantly:
+>
+> * understand
+> * create
+> * express
+
+---
+
+## ✨ Success Criteria
+
+A new user should:
+
+* understand what to do within 10 seconds
+* create something within 1 minute
+* feel ownership of their space
+
+---
+
+## 🔥 Tagline
+
+**openad**
+post anything
+
+---
+
+## 🧪 Build Priority
+
+1. Canvas rendering
+2. Drag & drop system
+3. Add element flow
+4. Public board rendering
+5. Basic explore
+
+---
+
+## 🧑‍💻 Developer Notes
+
+* Prioritize speed over perfection
+* Ship early, iterate fast
+* Keep system modular (element-based)
+
+---
+
+End of file.
