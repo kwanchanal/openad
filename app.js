@@ -354,6 +354,11 @@ function renderProfile() {
       ? `wemint.app/${username}`
       : "wemint.app/yours";
   }
+  if (elements.previewCta) {
+    elements.previewCta.textContent = username
+      ? `WEMINT.APP/${username.toUpperCase()}/>_POST ANYTHING`
+      : "WEMINT.APP/YOU/>_POST ANYTHING";
+  }
 }
 
 function applyAppearance() {
